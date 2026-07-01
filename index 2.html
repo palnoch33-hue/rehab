@@ -1,0 +1,1088 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Charlie Shoulder Rehab</title>
+<style>
+:root {
+  --bg:#0b0f14; --card:#151b24; --card2:#1e2632; --line:#2a3444;
+  --text:#f7f4ef; --muted:#aab3c2; --blue:#69d2ff; --green:#8ef0a4;
+  --yellow:#ffe08a; --red:#ff9b9b;
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body {
+  margin:0; padding:16px 16px 90px;
+  background:linear-gradient(180deg,#0b0f14,#111827);
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+}
+h1 { font-size:31px; letter-spacing:-.04em; margin:6px 0 4px; }
+h2 { font-size:22px; margin:0 0 12px; }
+h3 { font-size:18px; margin:0; }
+p { color:var(--muted); line-height:1.45; }
+button {
+  border:0; border-radius:14px; background:var(--card2); color:var(--text);
+  padding:12px; font-weight:800; cursor:pointer;
+}
+.hero,.block,.panel {
+  background:rgba(21,27,36,.95);
+  border:1px solid var(--line);
+  border-radius:22px;
+  padding:16px;
+  margin:14px 0;
+  box-shadow:0 14px 35px rgba(0,0,0,.22);
+}
+.hero { background:linear-gradient(135deg,#1e293b,#082f49); }
+.header { display:flex; justify-content:space-between; align-items:center; gap:12px; }
+.small { color:var(--muted); font-size:13px; }
+.stats { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:14px; }
+.stat { text-align:center; background:rgba(255,255,255,.06); border-radius:15px; padding:10px 4px; }
+.stat b { display:block; font-size:22px; }
+.stat span { font-size:11px; color:var(--muted); }
+.progress { height:12px; background:#080b10; border:1px solid var(--line); border-radius:999px; overflow:hidden; margin-top:12px; }
+.progress div { height:100%; width:0%; background:linear-gradient(90deg,var(--blue),var(--green)); }
+.nav {
+  position:sticky; top:0; z-index:5;
+  background:rgba(11,15,20,.94); backdrop-filter:blur(14px);
+  display:flex; gap:8px; overflow-x:auto; padding:8px 0 12px;
+}
+.nav a {
+  white-space:nowrap; text-decoration:none; color:var(--text); background:var(--card2);
+  padding:10px 12px; border-radius:999px; font-size:13px; font-weight:800;
+}
+.exercise {
+  display:grid; grid-template-columns:86px 1fr; gap:13px;
+  padding:15px 0; border-bottom:1px solid var(--line);
+}
+.exercise:last-child { border-bottom:0; }
+.icon { width:86px; height:86px; }
+.icon svg { width:86px; height:86px; display:block; }
+.topline { display:flex; justify-content:space-between; gap:10px; align-items:flex-start; }
+.tick { width:30px; height:30px; min-width:30px; accent-color:var(--blue); }
+.dose { margin:4px 0 0; font-size:14px; }
+.tag {
+  display:inline-block; margin-top:8px; padding:5px 8px; border-radius:999px;
+  background:rgba(105,210,255,.1); border:1px solid rgba(105,210,255,.23);
+  color:#c8ecff; font-size:12px; font-weight:700;
+}
+details {
+  margin-top:10px; border:1px solid var(--line); border-radius:15px;
+  background:rgba(255,255,255,.025); overflow:hidden;
+}
+summary { padding:11px 12px; font-weight:800; cursor:pointer; }
+details p { padding:0 12px; font-size:14px; }
+.grid2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+label { display:block; color:var(--muted); font-size:13px; margin:12px 0 6px; }
+input[type=number], textarea, select {
+  width:100%; border:1px solid var(--line); border-radius:14px; background:#0d131b;
+  color:var(--text); padding:13px; font-size:17px;
+}
+.bottomnav {
+  position:fixed; left:0; right:0; bottom:0; z-index:10;
+  display:grid; grid-template-columns:repeat(4,1fr); gap:6px;
+  background:rgba(11,15,20,.94); backdrop-filter:blur(14px);
+  padding:8px 10px calc(8px + env(safe-area-inset-bottom));
+  border-top:1px solid var(--line);
+}
+.bottomnav a {
+  text-align:center; text-decoration:none; color:var(--text); background:var(--card2);
+  border-radius:14px; padding:11px 4px; font-size:12px; font-weight:800;
+}
+.day { border-left:4px solid var(--blue); padding:10px 0 10px 12px; margin:8px 0; background:rgba(255,255,255,.025); border-radius:0 14px 14px 0; }
+.red { color:var(--red); } .green { color:var(--green); } .yellow { color:var(--yellow); }
+</style>
+</head>
+<body>
+<div class="header">
+  <div>
+    <h1>Shoulder Rehab</h1>
+    <div class="small" id="todayDate"></div>
+  </div>
+  <button id="resetBtn">Reset</button>
+</div>
+
+<div class="hero">
+  <h2>Charlie’s Shoulder Plan</h2>
+  <p>Built around your MRI: AC joint inflammation, supraspinatus tendinopathy, mild bursitis and mild long-head biceps tendinopathy. No rotator cuff tear.</p>
+  <div class="stats">
+    <div class="stat"><b id="doneCount">0</b><span>done</span></div>
+    <div class="stat"><b id="totalCount">27</b><span>tasks</span></div>
+    <div class="stat"><b id="painDisplay">–</b><span>pain</span></div>
+    <div class="stat"><b id="stiffDisplay">–</b><span>stiff</span></div>
+  </div>
+  <div class="progress"><div id="progressBar"></div></div>
+</div>
+
+<nav class="nav">
+  <a href="#daily-rehab">Daily Rehab</a>
+  <a href="#after-bjj-cooldown">After BJJ</a>
+  <a href="#thursday-gym">Gym</a>
+  <a href="#recovery-tools">Recovery</a>
+  <a href="#checkin">Check-in</a>
+  <a href="#week">Week</a>
+</nav>
+
+<section class="block" id="daily-rehab"><h2>Daily Rehab</h2>
+        <article class="exercise">
+            <div class="icon">
+    <svg viewBox="0 0 120 120" aria-hidden="true">
+      <rect x="8" y="8" width="104" height="104" rx="24" fill="#0f1720" stroke="#2b3544" stroke-width="2"/>
+      <circle cx="60" cy="32" r="10" fill="#f7f4ef"/>
+      <path d="M60 44 L60 76" stroke="#f7f4ef" stroke-width="8" stroke-linecap="round"/>
+      <path d="M60 54 L34 68" stroke="#69d2ff" stroke-width="8" stroke-linecap="round"/>
+      <path d="M60 54 L86 68" stroke="#69d2ff" stroke-width="8" stroke-linecap="round"/>
+      <path d="M48 78 L36 100" stroke="#aab3c2" stroke-width="7" stroke-linecap="round"/>
+      <path d="M72 78 L84 100" stroke="#aab3c2" stroke-width="7" stroke-linecap="round"/>
+      <text x="60" y="108" text-anchor="middle" fill="#69d2ff" font-size="16" font-family="Arial" font-weight="700">TH</text>
+    </svg>
+    </div>
+            <div class="content">
+                <div class="topline">
+                    <div>
+                        <h3>Thoracic Extensions</h3>
+                        <p class="dose">10 slow reps</p>
+                    </div>
+                    <input type="checkbox" data-task="task_0" class="tick">
+                </div>
+                <span class="tag">AC joint unloading</span>
+                <details>
+                    <summary>Cues + why</summary>
+                    <p><strong>Cues:</strong> Lie upper back on foam roller. Extend gently over it. Do not force the neck.</p>
+                    <p><strong>Why:</strong> Restores upper-back extension so your shoulder blade moves better and the AC joint is less compressed.</p>
+                </details>
+            </div>
+        </article>
+        
+        <article class="exercise">
+            <div class="icon">
+    <svg viewBox="0 0 120 120" aria-hidden="true">
+      <rect x="8" y="8" width="104" height="104" rx="24" fill="#0f1720" stroke="#2b3544" stroke-width="2"/>
+      <circle cx="60" cy="32" r="10" fill="#f7f4ef"/>
+      <path d="M60 44 L60 76" stroke="#f7f4ef" stroke-width="8" stroke-linecap="round"/>
+      <path d="M60 54 L34 68" stroke="#69d2ff" stroke-width="8" stroke-linecap="round"/>
+      <path d="M60 54 L86 68" stroke="#69d2ff" stroke-width="8" stroke-linecap="round"/>
+      <path d="M48 78 L36 100" stroke="#aab3c2" stroke-width="7" stroke-linecap="round"/>
+      <path d="M72 78 L84 100" stroke="#aab3c2" stroke-width="7" stroke-linecap="round"/>
+      <text x="60" y="108" text-anchor="middle" fill="#69d2ff" font-size="16" font-family="Arial" font-weight="700">TH</text>
+    </svg>
+    </div>
+            <div class="content">
+                <div class="topline">
+                    <div>
+                        <h3>Thread the Needle</h3>
+                        <p class="dose">8 reps each side</p>
+                    </div>
+                    <input type="checkbox" data-task="task_1" class="tick">
+                </div>
+                <span class="tag">Thoracic rotation</span>
+                <details>
+                    <summary>Cues + why</summary>
+                    <p><strong>Cues:</strong> On all fours, slide one arm under the body and rotate. Move through the upper back, not the shoulder.</p>
+                    <p><strong>Why:</strong> Improves rotation for BJJ frames and reduces shoulder compensation.</p>
+                </details>
+            </div>
+        </article>
+        
+        <article class="exercise">
+            <div class="icon">
+    <svg viewBox="0 0 120 120" aria-hidden="true">
+      <rect x="8" y="8" width="104" height="104" rx="24" fill="#0f1720" stroke="#2b3544" stroke-width="2"/>
+      <circle cx="60" cy="32" r="10" fill="#f7f4ef"/>
+      <path d="M60 44 L60 76" stroke="#f7f4ef" stroke-width="8" stroke-linecap="round"/>
+      <path d="M60 54 L34 68" stroke="#69d2ff" stroke-width="8" stroke-linecap="round"/>
+      <path d="M60 54 L86 68" stroke="#69d2ff" stroke-width="8" stroke-linecap="round"/>
+      <path d="M48 78 L36 100" stroke="#aab3c2" stroke-width="7" stroke-linecap="round"/>
+      <path d="M72 78 L84 100" stroke="#aab3c2" stroke-width="7" stroke-linecap="round"/>
+      <text x="60" y="108" text-anchor="middle" fill="#69d2ff" font-size="16" font-family="Arial" font-weight="700">PE</text>
+    </svg>
+    </div>
+            <div class="content">
+                <div class="topline">
+                    <div>
+                        <h3>Pec Minor Release</h3>
+                        <p class="dose">60 sec each side</p>
+                    </div>
+                    <input type="checkbox" data-task="task_2" class="tick">
+                </div>
+                <span class="tag">Pec / chest stiffness</span>
+                <details>
+                    <summary>Cues + why</summary>
+                    <p><strong>Cues:</strong> Use a ball or Theragun gently on the upper chest, just below collarbone and inside shoulder. Avoid sharp pain.</p>
+                    <p><strong>Why:</strong> Reduces forward shoulder position and upper trap guarding.</p>
+                </details>
+            </div>
+        </article>
+        
+        <article class="exercise">
+            <div class="icon">
+    <svg viewBox="0 0 120 120" aria-hidden="true">
+      <rect x="8" y="8" width="104" height="104" rx="24" fill="#0f1720" stroke="#2b3544" stroke-width="2"/>
+      <circle cx="60" cy="32" r="10" fill="#f7f4ef"/>
+      <path d="M60 44 L60 76" stroke="#f7f4ef" stroke-width="8" stroke-linecap="round"/>
+      <path d="M60 54 L34 68" stroke="#69d2ff" stroke-width="8" stroke-linecap="round"/>
+      <path d="M60 54 L86 68" stroke="#69d2ff" stroke-width="8" stroke-linecap="round"/>
+      <path d="M48 78 L36 100" stroke="#aab3c2" stroke-width="7" stroke-linecap="round"/>
+      <path d="M72 78 L84 100" stroke="#aab3c2" stroke-width="7" stroke-linecap="round"/>
+      <text x="60" y="108" text-anchor="middle" fill="#69d2ff" font-size="16" font-family="Arial" font-weight="700">BA</text>
+    </svg>
+    </div>
+            <div class="content">
+                <div class="topline">
+                    <div>
+                        <h3>Band External Rotation</h3>
+                        <p class="dose">2 × 15 each side</p>
+                    </div>
+                    <input type="checkbox" data-task="task_3" class="tick">
+                </div>
+                <span class="tag">Rotator cuff</span>
+                <details>
+                    <summary>Cues + why</summary>
+                    <p><strong>Cues:</strong> Elbow tucked to ribs. Rotate hand outward slowly. Use a light band.</p>
+                    <p><strong>Why:</strong> Direct rehab for supraspinatus/biceps irritation and shoulder stability.</p>
+                </details>
+            </div>
+        </article>
+        
+        <article class="exercise">
+            <div class="icon">
+    <svg viewBox="0 0 120 120" aria-hidden="true">
+      <rect x="8" y="8" width="104" height="104" rx="24" fill="#0f1720" stroke="#2b3544" stroke-width="2"/>
+      <circle cx="60" cy="32" r="10" fill="#f7f4ef"/>
+      <path d="M60 44 L60 76" stroke="#f7f4ef" stroke-width="8" stroke-linecap="round"/>
+      <path d="M60 54 L34 68" stroke="#69d2ff" stroke-width="8" stroke-linecap="round"/>
+      <path d="M60 54 L86 68" stroke="#69d2ff" stroke-width="8" stroke-linecap="round"/>
+      <path d="M48 78 L36 100" stroke="#aab3c2" stroke-width="7" stroke-linecap="round"/>
+      <path d="M72 78 L84 100" stroke="#aab3c2" stroke-width="7" stroke-linecap="round"/>
+      <text x="60" y="108" text-anchor="middle" fill="#69d2ff" font-size="16" font-family="Arial" font-weight="700">WA</text>
+    </svg>
+    </div>
+            <div class="content">
+                <div class="topline">
+                    <div>
+                        <h3>Wall Slides</h3>
+                        <p class="dose">2 × 10</p>
+                    </div>
+                    <input type="checkbox" data-task="task_4" class="tick">
+                </div>
+                <span class="tag">Scapular control</span>
+                <details>
+                    <summary>Cues + why</summary>
+                    <p><strong>Cues:</strong> Forearms on wall. Slide up slowly while keeping ribs down. Stop before pinching.</p>
+                    <p><strong>Why:</strong> Trains clean overhead movement without shrugging.</p>
+                </details>
+            </div>
+        </article>
+        
+        <article class="exercise">
+            <div class="icon">
+    <svg viewBox="0 0 120 120" aria-hidden="true">
+      <rect x="8" y="8" width="104" height="104" rx="24" fill="#0f1720" stroke="#2b3544" stroke-width="2"/>
+      <circle cx="60" cy="32" r="10" fill="#f7f4ef"/>
+      <path d="M60 44 L60 76" stroke="#f7f4ef" stroke-width="8" stroke-linecap="round"/>
+      <path d="M60 54 L34 68" stroke="#69d2ff" stroke-width="8" stroke-linecap="round"/>
+      <path d="M60 54 L86 68" stroke="#69d2ff" stroke-width="8" stroke-linecap="round"/>
+      <path d="M48 78 L36 100" stroke="#aab3c2" stroke-width="7" stroke-linecap="round"/>
+      <path d="M72 78 L84 100" stroke="#aab3c2" stroke-width="7" stroke-linecap="round"/>
+      <text x="60" y="108" text-anchor="middle" fill="#69d2ff" font-size="16" font-family="Arial" font-weight="700">FA</text>
+    </svg>
+    </div>
+            <div class="content">
+                <div class="topline">
+                    <div>
+                        <h3>Face Pulls</h3>
+                        <p class="dose">2 × 15</p>
+                    </div>
+                    <input type="checkbox" data-task="task_5" class="tick">
+                </div>
+                <span class="tag">Lower trap / rear delt</span>
+                <details>
+                    <summary>Cues + why</summary>
+                    <p><strong>Cues:</strong> Pull band/cable toward face. Elbows high-ish, shoulder blades back and down.</p>
+                    <p><strong>Why:</strong> Balances BJJ’s rounded posture and reduces upper trap dominance.</p>
+                </details>
+            </div>
+        </article>
+        
+        <article class="exercise">
+            <div class="icon">
+    <svg viewBox="0 0 120 120" aria-hidden="true">
+      <rect x="8" y="8" width="104" height="104" rx="24" fill="#0f1720" stroke="#2b3544" stroke-width="2"/>
+      <circle cx="60" cy="32" r="10" fill="#f7f4ef"/>
+      <path d="M60 44 L60 76" stroke="#f7f4ef" stroke-width="8" stroke-linecap="round"/>
+      <path d="M60 54 L34 68" stroke="#69d2ff" stroke-width="8" stroke-linecap="round"/>
+      <path d="M60 54 L86 68" stroke="#69d2ff" stroke-width="8" stroke-linecap="round"/>
+      <path d="M48 78 L36 100" stroke="#aab3c2" stroke-width="7" stroke-linecap="round"/>
+      <path d="M72 78 L84 100" stroke="#aab3c2" stroke-width="7" stroke-linecap="round"/>
+      <text x="60" y="108" text-anchor="middle" fill="#69d2ff" font-size="16" font-family="Arial" font-weight="700">SE</text>
+    </svg>
+    </div>
+            <div class="content">
+                <div class="topline">
+                    <div>
+                        <h3>Serratus Push-up Plus</h3>
+                        <p class="dose">2 × 12</p>
+                    </div>
+                    <input type="checkbox" data-task="task_6" class="tick">
+                </div>
+                <span class="tag">Shoulder blade</span>
+                <details>
+                    <summary>Cues + why</summary>
+                    <p><strong>Cues:</strong> In plank or against wall, keep elbows straight and push shoulder blades apart.</p>
+                    <p><strong>Why:</strong> Helps the scapula glide properly around the ribs.</p>
+                </details>
+            </div>
+        </article>
+        
+        <article class="exercise">
+            <div class="icon">
+    <svg viewBox="0 0 120 120" aria-hidden="true">
+      <rect x="8" y="8" width="104" height="104" rx="24" fill="#0f1720" stroke="#2b3544" stroke-width="2"/>
+      <circle cx="60" cy="32" r="10" fill="#f7f4ef"/>
+      <path d="M60 44 L60 76" stroke="#f7f4ef" stroke-width="8" stroke-linecap="round"/>
+      <path d="M60 54 L34 68" stroke="#69d2ff" stroke-width="8" stroke-linecap="round"/>
+      <path d="M60 54 L86 68" stroke="#69d2ff" stroke-width="8" stroke-linecap="round"/>
+      <path d="M48 78 L36 100" stroke="#aab3c2" stroke-width="7" stroke-linecap="round"/>
+      <path d="M72 78 L84 100" stroke="#aab3c2" stroke-width="7" stroke-linecap="round"/>
+      <text x="60" y="108" text-anchor="middle" fill="#69d2ff" font-size="16" font-family="Arial" font-weight="700">PR</text>
+    </svg>
+    </div>
+            <div class="content">
+                <div class="topline">
+                    <div>
+                        <h3>Prone W to Y Raise</h3>
+                        <p class="dose">2 × 10</p>
+                    </div>
+                    <input type="checkbox" data-task="task_7" class="tick">
+                </div>
+                <span class="tag">Lower trap</span>
+                <details>
+                    <summary>Cues + why</summary>
+                    <p><strong>Cues:</strong> Lie face down on bench/floor. Make a W, then raise arms toward Y. Very light.</p>
+                    <p><strong>Why:</strong> Builds lower trap so upper trap stops doing everything.</p>
+                </details>
+            </div>
+        </article>
+        
+        <article class="exercise">
+            <div class="icon">
+    <svg viewBox="0 0 120 120" aria-hidden="true">
+      <rect x="8" y="8" width="104" height="104" rx="24" fill="#0f1720" stroke="#2b3544" stroke-width="2"/>
+      <circle cx="60" cy="32" r="10" fill="#f7f4ef"/>
+      <path d="M60 44 L60 76" stroke="#f7f4ef" stroke-width="8" stroke-linecap="round"/>
+      <path d="M60 54 L34 68" stroke="#69d2ff" stroke-width="8" stroke-linecap="round"/>
+      <path d="M60 54 L86 68" stroke="#69d2ff" stroke-width="8" stroke-linecap="round"/>
+      <path d="M48 78 L36 100" stroke="#aab3c2" stroke-width="7" stroke-linecap="round"/>
+      <path d="M72 78 L84 100" stroke="#aab3c2" stroke-width="7" stroke-linecap="round"/>
+      <text x="60" y="108" text-anchor="middle" fill="#69d2ff" font-size="16" font-family="Arial" font-weight="700">AC</text>
+    </svg>
+    </div>
+            <div class="content">
+                <div class="topline">
+                    <div>
+                        <h3>AC Joint Isometric Press</h3>
+                        <p class="dose">5 × 10 sec</p>
+                    </div>
+                    <input type="checkbox" data-task="task_8" class="tick">
+                </div>
+                <span class="tag">Pain calming</span>
+                <details>
+                    <summary>Cues + why</summary>
+                    <p><strong>Cues:</strong> Palm into wall at chest height. Press gently at 30–50% effort. No pain spike.</p>
+                    <p><strong>Why:</strong> Useful for calming irritated AC joint and rebuilding tolerance.</p>
+                </details>
+            </div>
+        </article>
+        </section><section class="block" id="after-bjj-cooldown"><h2>After BJJ Cooldown</h2>
+        <article class="exercise">
+            <div class="icon">
+    <svg viewBox="0 0 120 120" aria-hidden="true">
+      <rect x="8" y="8" width="104" height="104" rx="24" fill="#0f1720" stroke="#2b3544" stroke-width="2"/>
+      <circle cx="60" cy="32" r="10" fill="#f7f4ef"/>
+      <path d="M60 44 L60 76" stroke="#f7f4ef" stroke-width="8" stroke-linecap="round"/>
+      <path d="M60 54 L34 68" stroke="#69d2ff" stroke-width="8" stroke-linecap="round"/>
+      <path d="M60 54 L86 68" stroke="#69d2ff" stroke-width="8" stroke-linecap="round"/>
+      <path d="M48 78 L36 100" stroke="#aab3c2" stroke-width="7" stroke-linecap="round"/>
+      <path d="M72 78 L84 100" stroke="#aab3c2" stroke-width="7" stroke-linecap="round"/>
+      <text x="60" y="108" text-anchor="middle" fill="#69d2ff" font-size="16" font-family="Arial" font-weight="700">CH</text>
+    </svg>
+    </div>
+            <div class="content">
+                <div class="topline">
+                    <div>
+                        <h3>Child’s Pose Breathing</h3>
+                        <p class="dose">90 sec</p>
+                    </div>
+                    <input type="checkbox" data-task="task_9" class="tick">
+                </div>
+                <span class="tag">Downshift</span>
+                <details>
+                    <summary>Cues + why</summary>
+                    <p><strong>Cues:</strong> Long exhales. Let traps and lats relax.</p>
+                    <p><strong>Why:</strong> Calms the nervous system after rolling.</p>
+                </details>
+            </div>
+        </article>
+        
+        <article class="exercise">
+            <div class="icon">
+    <svg viewBox="0 0 120 120" aria-hidden="true">
+      <rect x="8" y="8" width="104" height="104" rx="24" fill="#0f1720" stroke="#2b3544" stroke-width="2"/>
+      <circle cx="60" cy="32" r="10" fill="#f7f4ef"/>
+      <path d="M60 44 L60 76" stroke="#f7f4ef" stroke-width="8" stroke-linecap="round"/>
+      <path d="M60 54 L34 68" stroke="#69d2ff" stroke-width="8" stroke-linecap="round"/>
+      <path d="M60 54 L86 68" stroke="#69d2ff" stroke-width="8" stroke-linecap="round"/>
+      <path d="M48 78 L36 100" stroke="#aab3c2" stroke-width="7" stroke-linecap="round"/>
+      <path d="M72 78 L84 100" stroke="#aab3c2" stroke-width="7" stroke-linecap="round"/>
+      <text x="60" y="108" text-anchor="middle" fill="#69d2ff" font-size="16" font-family="Arial" font-weight="700">DO</text>
+    </svg>
+    </div>
+            <div class="content">
+                <div class="topline">
+                    <div>
+                        <h3>Doorway Pec Stretch</h3>
+                        <p class="dose">2 × 30 sec</p>
+                    </div>
+                    <input type="checkbox" data-task="task_10" class="tick">
+                </div>
+                <span class="tag">Chest opening</span>
+                <details>
+                    <summary>Cues + why</summary>
+                    <p><strong>Cues:</strong> Gentle stretch only. Do not crank the shoulder forward.</p>
+                    <p><strong>Why:</strong> Reduces pec guarding after grips/frames.</p>
+                </details>
+            </div>
+        </article>
+        
+        <article class="exercise">
+            <div class="icon">
+    <svg viewBox="0 0 120 120" aria-hidden="true">
+      <rect x="8" y="8" width="104" height="104" rx="24" fill="#0f1720" stroke="#2b3544" stroke-width="2"/>
+      <circle cx="60" cy="32" r="10" fill="#f7f4ef"/>
+      <path d="M60 44 L60 76" stroke="#f7f4ef" stroke-width="8" stroke-linecap="round"/>
+      <path d="M60 54 L34 68" stroke="#69d2ff" stroke-width="8" stroke-linecap="round"/>
+      <path d="M60 54 L86 68" stroke="#69d2ff" stroke-width="8" stroke-linecap="round"/>
+      <path d="M48 78 L36 100" stroke="#aab3c2" stroke-width="7" stroke-linecap="round"/>
+      <path d="M72 78 L84 100" stroke="#aab3c2" stroke-width="7" stroke-linecap="round"/>
+      <text x="60" y="108" text-anchor="middle" fill="#69d2ff" font-size="16" font-family="Arial" font-weight="700">TH</text>
+    </svg>
+    </div>
+            <div class="content">
+                <div class="topline">
+                    <div>
+                        <h3>Thread the Needle</h3>
+                        <p class="dose">5 reps each side</p>
+                    </div>
+                    <input type="checkbox" data-task="task_11" class="tick">
+                </div>
+                <span class="tag">Rotation reset</span>
+                <details>
+                    <summary>Cues + why</summary>
+                    <p><strong>Cues:</strong> Slow reps after training.</p>
+                    <p><strong>Why:</strong> Restores thoracic rotation.</p>
+                </details>
+            </div>
+        </article>
+        
+        <article class="exercise">
+            <div class="icon">
+    <svg viewBox="0 0 120 120" aria-hidden="true">
+      <rect x="8" y="8" width="104" height="104" rx="24" fill="#0f1720" stroke="#2b3544" stroke-width="2"/>
+      <circle cx="60" cy="32" r="10" fill="#f7f4ef"/>
+      <path d="M60 44 L60 76" stroke="#f7f4ef" stroke-width="8" stroke-linecap="round"/>
+      <path d="M60 54 L34 68" stroke="#69d2ff" stroke-width="8" stroke-linecap="round"/>
+      <path d="M60 54 L86 68" stroke="#69d2ff" stroke-width="8" stroke-linecap="round"/>
+      <path d="M48 78 L36 100" stroke="#aab3c2" stroke-width="7" stroke-linecap="round"/>
+      <path d="M72 78 L84 100" stroke="#aab3c2" stroke-width="7" stroke-linecap="round"/>
+      <text x="60" y="108" text-anchor="middle" fill="#69d2ff" font-size="16" font-family="Arial" font-weight="700">LI</text>
+    </svg>
+    </div>
+            <div class="content">
+                <div class="topline">
+                    <div>
+                        <h3>Light Band External Rotation</h3>
+                        <p class="dose">1 × 20</p>
+                    </div>
+                    <input type="checkbox" data-task="task_12" class="tick">
+                </div>
+                <span class="tag">Blood flow</span>
+                <details>
+                    <summary>Cues + why</summary>
+                    <p><strong>Cues:</strong> Very light band. No fatigue.</p>
+                    <p><strong>Why:</strong> Feeds the cuff without overloading it.</p>
+                </details>
+            </div>
+        </article>
+        
+        <article class="exercise">
+            <div class="icon">
+    <svg viewBox="0 0 120 120" aria-hidden="true">
+      <rect x="8" y="8" width="104" height="104" rx="24" fill="#0f1720" stroke="#2b3544" stroke-width="2"/>
+      <circle cx="60" cy="32" r="10" fill="#f7f4ef"/>
+      <path d="M60 44 L60 76" stroke="#f7f4ef" stroke-width="8" stroke-linecap="round"/>
+      <path d="M60 54 L34 68" stroke="#69d2ff" stroke-width="8" stroke-linecap="round"/>
+      <path d="M60 54 L86 68" stroke="#69d2ff" stroke-width="8" stroke-linecap="round"/>
+      <path d="M48 78 L36 100" stroke="#aab3c2" stroke-width="7" stroke-linecap="round"/>
+      <path d="M72 78 L84 100" stroke="#aab3c2" stroke-width="7" stroke-linecap="round"/>
+      <text x="60" y="108" text-anchor="middle" fill="#69d2ff" font-size="16" font-family="Arial" font-weight="700">WA</text>
+    </svg>
+    </div>
+            <div class="content">
+                <div class="topline">
+                    <div>
+                        <h3>Wall Slides</h3>
+                        <p class="dose">1 × 10</p>
+                    </div>
+                    <input type="checkbox" data-task="task_13" class="tick">
+                </div>
+                <span class="tag">Clean range</span>
+                <details>
+                    <summary>Cues + why</summary>
+                    <p><strong>Cues:</strong> Finish with smooth shoulder movement.</p>
+                    <p><strong>Why:</strong> Reinforces pain-free overhead pattern.</p>
+                </details>
+            </div>
+        </article>
+        </section><section class="block" id="thursday-gym"><h2>Thursday Gym</h2>
+        <article class="exercise">
+            <div class="icon">
+    <svg viewBox="0 0 120 120" aria-hidden="true">
+      <rect x="8" y="8" width="104" height="104" rx="24" fill="#0f1720" stroke="#2b3544" stroke-width="2"/>
+      <circle cx="60" cy="32" r="10" fill="#f7f4ef"/>
+      <path d="M60 44 L60 76" stroke="#f7f4ef" stroke-width="8" stroke-linecap="round"/>
+      <path d="M60 54 L34 68" stroke="#69d2ff" stroke-width="8" stroke-linecap="round"/>
+      <path d="M60 54 L86 68" stroke="#69d2ff" stroke-width="8" stroke-linecap="round"/>
+      <path d="M48 78 L36 100" stroke="#aab3c2" stroke-width="7" stroke-linecap="round"/>
+      <path d="M72 78 L84 100" stroke="#aab3c2" stroke-width="7" stroke-linecap="round"/>
+      <text x="60" y="108" text-anchor="middle" fill="#69d2ff" font-size="16" font-family="Arial" font-weight="700">SH</text>
+    </svg>
+    </div>
+            <div class="content">
+                <div class="topline">
+                    <div>
+                        <h3>Shoulder Prep Circuit</h3>
+                        <p class="dose">1 round</p>
+                    </div>
+                    <input type="checkbox" data-task="task_14" class="tick">
+                </div>
+                <span class="tag">Warm-up</span>
+                <details>
+                    <summary>Cues + why</summary>
+                    <p><strong>Cues:</strong> Do the Daily Rehab circuit once before lifting.</p>
+                    <p><strong>Why:</strong> Prepares the shoulder before loading.</p>
+                </details>
+            </div>
+        </article>
+        
+        <article class="exercise">
+            <div class="icon">
+    <svg viewBox="0 0 120 120" aria-hidden="true">
+      <rect x="8" y="8" width="104" height="104" rx="24" fill="#0f1720" stroke="#2b3544" stroke-width="2"/>
+      <circle cx="60" cy="32" r="10" fill="#f7f4ef"/>
+      <path d="M60 44 L60 76" stroke="#f7f4ef" stroke-width="8" stroke-linecap="round"/>
+      <path d="M60 54 L34 68" stroke="#69d2ff" stroke-width="8" stroke-linecap="round"/>
+      <path d="M60 54 L86 68" stroke="#69d2ff" stroke-width="8" stroke-linecap="round"/>
+      <path d="M48 78 L36 100" stroke="#aab3c2" stroke-width="7" stroke-linecap="round"/>
+      <path d="M72 78 L84 100" stroke="#aab3c2" stroke-width="7" stroke-linecap="round"/>
+      <text x="60" y="108" text-anchor="middle" fill="#69d2ff" font-size="16" font-family="Arial" font-weight="700">GO</text>
+    </svg>
+    </div>
+            <div class="content">
+                <div class="topline">
+                    <div>
+                        <h3>Goblet Squat</h3>
+                        <p class="dose">3 × 8</p>
+                    </div>
+                    <input type="checkbox" data-task="task_15" class="tick">
+                </div>
+                <span class="tag">Legs</span>
+                <details>
+                    <summary>Cues + why</summary>
+                    <p><strong>Cues:</strong> Hold dumbbell/kettlebell at chest. Pause at bottom.</p>
+                    <p><strong>Why:</strong> Lower body strength without shoulder stress.</p>
+                </details>
+            </div>
+        </article>
+        
+        <article class="exercise">
+            <div class="icon">
+    <svg viewBox="0 0 120 120" aria-hidden="true">
+      <rect x="8" y="8" width="104" height="104" rx="24" fill="#0f1720" stroke="#2b3544" stroke-width="2"/>
+      <circle cx="60" cy="32" r="10" fill="#f7f4ef"/>
+      <path d="M60 44 L60 76" stroke="#f7f4ef" stroke-width="8" stroke-linecap="round"/>
+      <path d="M60 54 L34 68" stroke="#69d2ff" stroke-width="8" stroke-linecap="round"/>
+      <path d="M60 54 L86 68" stroke="#69d2ff" stroke-width="8" stroke-linecap="round"/>
+      <path d="M48 78 L36 100" stroke="#aab3c2" stroke-width="7" stroke-linecap="round"/>
+      <path d="M72 78 L84 100" stroke="#aab3c2" stroke-width="7" stroke-linecap="round"/>
+      <text x="60" y="108" text-anchor="middle" fill="#69d2ff" font-size="16" font-family="Arial" font-weight="700">DB</text>
+    </svg>
+    </div>
+            <div class="content">
+                <div class="topline">
+                    <div>
+                        <h3>DB Romanian Deadlift</h3>
+                        <p class="dose">3 × 8</p>
+                    </div>
+                    <input type="checkbox" data-task="task_16" class="tick">
+                </div>
+                <span class="tag">Posterior chain</span>
+                <details>
+                    <summary>Cues + why</summary>
+                    <p><strong>Cues:</strong> Soft knees, hinge at hips, slow lower.</p>
+                    <p><strong>Why:</strong> Hamstrings/glutes for BJJ base.</p>
+                </details>
+            </div>
+        </article>
+        
+        <article class="exercise">
+            <div class="icon">
+    <svg viewBox="0 0 120 120" aria-hidden="true">
+      <rect x="8" y="8" width="104" height="104" rx="24" fill="#0f1720" stroke="#2b3544" stroke-width="2"/>
+      <circle cx="60" cy="32" r="10" fill="#f7f4ef"/>
+      <path d="M60 44 L60 76" stroke="#f7f4ef" stroke-width="8" stroke-linecap="round"/>
+      <path d="M60 54 L34 68" stroke="#69d2ff" stroke-width="8" stroke-linecap="round"/>
+      <path d="M60 54 L86 68" stroke="#69d2ff" stroke-width="8" stroke-linecap="round"/>
+      <path d="M48 78 L36 100" stroke="#aab3c2" stroke-width="7" stroke-linecap="round"/>
+      <path d="M72 78 L84 100" stroke="#aab3c2" stroke-width="7" stroke-linecap="round"/>
+      <text x="60" y="108" text-anchor="middle" fill="#69d2ff" font-size="16" font-family="Arial" font-weight="700">CH</text>
+    </svg>
+    </div>
+            <div class="content">
+                <div class="topline">
+                    <div>
+                        <h3>Chest-supported Row</h3>
+                        <p class="dose">3 × 10</p>
+                    </div>
+                    <input type="checkbox" data-task="task_17" class="tick">
+                </div>
+                <span class="tag">Pull</span>
+                <details>
+                    <summary>Cues + why</summary>
+                    <p><strong>Cues:</strong> Chest on bench. Row without shrugging.</p>
+                    <p><strong>Why:</strong> Back strength while protecting shoulder mechanics.</p>
+                </details>
+            </div>
+        </article>
+        
+        <article class="exercise">
+            <div class="icon">
+    <svg viewBox="0 0 120 120" aria-hidden="true">
+      <rect x="8" y="8" width="104" height="104" rx="24" fill="#0f1720" stroke="#2b3544" stroke-width="2"/>
+      <circle cx="60" cy="32" r="10" fill="#f7f4ef"/>
+      <path d="M60 44 L60 76" stroke="#f7f4ef" stroke-width="8" stroke-linecap="round"/>
+      <path d="M60 54 L34 68" stroke="#69d2ff" stroke-width="8" stroke-linecap="round"/>
+      <path d="M60 54 L86 68" stroke="#69d2ff" stroke-width="8" stroke-linecap="round"/>
+      <path d="M48 78 L36 100" stroke="#aab3c2" stroke-width="7" stroke-linecap="round"/>
+      <path d="M72 78 L84 100" stroke="#aab3c2" stroke-width="7" stroke-linecap="round"/>
+      <text x="60" y="108" text-anchor="middle" fill="#69d2ff" font-size="16" font-family="Arial" font-weight="700">NE</text>
+    </svg>
+    </div>
+            <div class="content">
+                <div class="topline">
+                    <div>
+                        <h3>Neutral-grip Pulldown</h3>
+                        <p class="dose">3 × 10</p>
+                    </div>
+                    <input type="checkbox" data-task="task_18" class="tick">
+                </div>
+                <span class="tag">Pull</span>
+                <details>
+                    <summary>Cues + why</summary>
+                    <p><strong>Cues:</strong> Smooth reps. No swinging. Stop before pinch.</p>
+                    <p><strong>Why:</strong> Builds pulling strength without aggressive shoulder position.</p>
+                </details>
+            </div>
+        </article>
+        
+        <article class="exercise">
+            <div class="icon">
+    <svg viewBox="0 0 120 120" aria-hidden="true">
+      <rect x="8" y="8" width="104" height="104" rx="24" fill="#0f1720" stroke="#2b3544" stroke-width="2"/>
+      <circle cx="60" cy="32" r="10" fill="#f7f4ef"/>
+      <path d="M60 44 L60 76" stroke="#f7f4ef" stroke-width="8" stroke-linecap="round"/>
+      <path d="M60 54 L34 68" stroke="#69d2ff" stroke-width="8" stroke-linecap="round"/>
+      <path d="M60 54 L86 68" stroke="#69d2ff" stroke-width="8" stroke-linecap="round"/>
+      <path d="M48 78 L36 100" stroke="#aab3c2" stroke-width="7" stroke-linecap="round"/>
+      <path d="M72 78 L84 100" stroke="#aab3c2" stroke-width="7" stroke-linecap="round"/>
+      <text x="60" y="108" text-anchor="middle" fill="#69d2ff" font-size="16" font-family="Arial" font-weight="700">PA</text>
+    </svg>
+    </div>
+            <div class="content">
+                <div class="topline">
+                    <div>
+                        <h3>Pallof Press</h3>
+                        <p class="dose">3 × 12 each side</p>
+                    </div>
+                    <input type="checkbox" data-task="task_19" class="tick">
+                </div>
+                <span class="tag">Core</span>
+                <details>
+                    <summary>Cues + why</summary>
+                    <p><strong>Cues:</strong> Cable/band at chest height. Press out and resist rotation.</p>
+                    <p><strong>Why:</strong> Anti-rotation strength for grappling.</p>
+                </details>
+            </div>
+        </article>
+        
+        <article class="exercise">
+            <div class="icon">
+    <svg viewBox="0 0 120 120" aria-hidden="true">
+      <rect x="8" y="8" width="104" height="104" rx="24" fill="#0f1720" stroke="#2b3544" stroke-width="2"/>
+      <circle cx="60" cy="32" r="10" fill="#f7f4ef"/>
+      <path d="M60 44 L60 76" stroke="#f7f4ef" stroke-width="8" stroke-linecap="round"/>
+      <path d="M60 54 L34 68" stroke="#69d2ff" stroke-width="8" stroke-linecap="round"/>
+      <path d="M60 54 L86 68" stroke="#69d2ff" stroke-width="8" stroke-linecap="round"/>
+      <path d="M48 78 L36 100" stroke="#aab3c2" stroke-width="7" stroke-linecap="round"/>
+      <path d="M72 78 L84 100" stroke="#aab3c2" stroke-width="7" stroke-linecap="round"/>
+      <text x="60" y="108" text-anchor="middle" fill="#69d2ff" font-size="16" font-family="Arial" font-weight="700">FA</text>
+    </svg>
+    </div>
+            <div class="content">
+                <div class="topline">
+                    <div>
+                        <h3>Farmer Carry</h3>
+                        <p class="dose">3 rounds</p>
+                    </div>
+                    <input type="checkbox" data-task="task_20" class="tick">
+                </div>
+                <span class="tag">Grip / base</span>
+                <details>
+                    <summary>Cues + why</summary>
+                    <p><strong>Cues:</strong> Heavy but clean. Shoulders packed, not shrugged.</p>
+                    <p><strong>Why:</strong> Grip, posture and trunk strength.</p>
+                </details>
+            </div>
+        </article>
+        
+        <article class="exercise">
+            <div class="icon">
+    <svg viewBox="0 0 120 120" aria-hidden="true">
+      <rect x="8" y="8" width="104" height="104" rx="24" fill="#0f1720" stroke="#2b3544" stroke-width="2"/>
+      <circle cx="60" cy="32" r="10" fill="#f7f4ef"/>
+      <path d="M60 44 L60 76" stroke="#f7f4ef" stroke-width="8" stroke-linecap="round"/>
+      <path d="M60 54 L34 68" stroke="#69d2ff" stroke-width="8" stroke-linecap="round"/>
+      <path d="M60 54 L86 68" stroke="#69d2ff" stroke-width="8" stroke-linecap="round"/>
+      <path d="M48 78 L36 100" stroke="#aab3c2" stroke-width="7" stroke-linecap="round"/>
+      <path d="M72 78 L84 100" stroke="#aab3c2" stroke-width="7" stroke-linecap="round"/>
+      <text x="60" y="108" text-anchor="middle" fill="#69d2ff" font-size="16" font-family="Arial" font-weight="700">PR</text>
+    </svg>
+    </div>
+            <div class="content">
+                <div class="topline">
+                    <div>
+                        <h3>Prone W to Y Raise</h3>
+                        <p class="dose">2 × 10</p>
+                    </div>
+                    <input type="checkbox" data-task="task_21" class="tick">
+                </div>
+                <span class="tag">Shoulder finisher</span>
+                <details>
+                    <summary>Cues + why</summary>
+                    <p><strong>Cues:</strong> Light and slow.</p>
+                    <p><strong>Why:</strong> Reinforces lower trap and scapular control.</p>
+                </details>
+            </div>
+        </article>
+        </section><section class="block" id="recovery-tools"><h2>Recovery Tools</h2>
+        <article class="exercise">
+            <div class="icon">
+    <svg viewBox="0 0 120 120" aria-hidden="true">
+      <rect x="8" y="8" width="104" height="104" rx="24" fill="#0f1720" stroke="#2b3544" stroke-width="2"/>
+      <circle cx="60" cy="32" r="10" fill="#f7f4ef"/>
+      <path d="M60 44 L60 76" stroke="#f7f4ef" stroke-width="8" stroke-linecap="round"/>
+      <path d="M60 54 L34 68" stroke="#69d2ff" stroke-width="8" stroke-linecap="round"/>
+      <path d="M60 54 L86 68" stroke="#69d2ff" stroke-width="8" stroke-linecap="round"/>
+      <path d="M48 78 L36 100" stroke="#aab3c2" stroke-width="7" stroke-linecap="round"/>
+      <path d="M72 78 L84 100" stroke="#aab3c2" stroke-width="7" stroke-linecap="round"/>
+      <text x="60" y="108" text-anchor="middle" fill="#69d2ff" font-size="16" font-family="Arial" font-weight="700">SA</text>
+    </svg>
+    </div>
+            <div class="content">
+                <div class="topline">
+                    <div>
+                        <h3>Sauna</h3>
+                        <p class="dose">15–20 mins</p>
+                    </div>
+                    <input type="checkbox" data-task="task_22" class="tick">
+                </div>
+                <span class="tag">Recovery</span>
+                <details>
+                    <summary>Cues + why</summary>
+                    <p><strong>Cues:</strong> 2–4× weekly. Hydrate well.</p>
+                    <p><strong>Why:</strong> Heat and blood flow are useful for this stage.</p>
+                </details>
+            </div>
+        </article>
+        
+        <article class="exercise">
+            <div class="icon">
+    <svg viewBox="0 0 120 120" aria-hidden="true">
+      <rect x="8" y="8" width="104" height="104" rx="24" fill="#0f1720" stroke="#2b3544" stroke-width="2"/>
+      <circle cx="60" cy="32" r="10" fill="#f7f4ef"/>
+      <path d="M60 44 L60 76" stroke="#f7f4ef" stroke-width="8" stroke-linecap="round"/>
+      <path d="M60 54 L34 68" stroke="#69d2ff" stroke-width="8" stroke-linecap="round"/>
+      <path d="M60 54 L86 68" stroke="#69d2ff" stroke-width="8" stroke-linecap="round"/>
+      <path d="M48 78 L36 100" stroke="#aab3c2" stroke-width="7" stroke-linecap="round"/>
+      <path d="M72 78 L84 100" stroke="#aab3c2" stroke-width="7" stroke-linecap="round"/>
+      <text x="60" y="108" text-anchor="middle" fill="#69d2ff" font-size="16" font-family="Arial" font-weight="700">TH</text>
+    </svg>
+    </div>
+            <div class="content">
+                <div class="topline">
+                    <div>
+                        <h3>Theragun</h3>
+                        <p class="dose">5 mins max</p>
+                    </div>
+                    <input type="checkbox" data-task="task_23" class="tick">
+                </div>
+                <span class="tag">Muscle guarding</span>
+                <details>
+                    <summary>Cues + why</summary>
+                    <p><strong>Cues:</strong> Use trap, rear delt, lat, pec belly. Avoid AC joint and painful tendon insertion.</p>
+                    <p><strong>Why:</strong> Helps relax protective guarding.</p>
+                </details>
+            </div>
+        </article>
+        
+        <article class="exercise">
+            <div class="icon">
+    <svg viewBox="0 0 120 120" aria-hidden="true">
+      <rect x="8" y="8" width="104" height="104" rx="24" fill="#0f1720" stroke="#2b3544" stroke-width="2"/>
+      <circle cx="60" cy="32" r="10" fill="#f7f4ef"/>
+      <path d="M60 44 L60 76" stroke="#f7f4ef" stroke-width="8" stroke-linecap="round"/>
+      <path d="M60 54 L34 68" stroke="#69d2ff" stroke-width="8" stroke-linecap="round"/>
+      <path d="M60 54 L86 68" stroke="#69d2ff" stroke-width="8" stroke-linecap="round"/>
+      <path d="M48 78 L36 100" stroke="#aab3c2" stroke-width="7" stroke-linecap="round"/>
+      <path d="M72 78 L84 100" stroke="#aab3c2" stroke-width="7" stroke-linecap="round"/>
+      <text x="60" y="108" text-anchor="middle" fill="#69d2ff" font-size="16" font-family="Arial" font-weight="700">SP</text>
+    </svg>
+    </div>
+            <div class="content">
+                <div class="topline">
+                    <div>
+                        <h3>Sports Massage</h3>
+                        <p class="dose">Every 2–3 weeks</p>
+                    </div>
+                    <input type="checkbox" data-task="task_24" class="tick">
+                </div>
+                <span class="tag">Soft tissue</span>
+                <details>
+                    <summary>Cues + why</summary>
+                    <p><strong>Cues:</strong> Useful if it improves function after 24–72h.</p>
+                    <p><strong>Why:</strong> Helps guarding, but rehab fixes the cause.</p>
+                </details>
+            </div>
+        </article>
+        
+        <article class="exercise">
+            <div class="icon">
+    <svg viewBox="0 0 120 120" aria-hidden="true">
+      <rect x="8" y="8" width="104" height="104" rx="24" fill="#0f1720" stroke="#2b3544" stroke-width="2"/>
+      <circle cx="60" cy="32" r="10" fill="#f7f4ef"/>
+      <path d="M60 44 L60 76" stroke="#f7f4ef" stroke-width="8" stroke-linecap="round"/>
+      <path d="M60 54 L34 68" stroke="#69d2ff" stroke-width="8" stroke-linecap="round"/>
+      <path d="M60 54 L86 68" stroke="#69d2ff" stroke-width="8" stroke-linecap="round"/>
+      <path d="M48 78 L36 100" stroke="#aab3c2" stroke-width="7" stroke-linecap="round"/>
+      <path d="M72 78 L84 100" stroke="#aab3c2" stroke-width="7" stroke-linecap="round"/>
+      <text x="60" y="108" text-anchor="middle" fill="#69d2ff" font-size="16" font-family="Arial" font-weight="700">HO</text>
+    </svg>
+    </div>
+            <div class="content">
+                <div class="topline">
+                    <div>
+                        <h3>Hot Bath / Steam</h3>
+                        <p class="dose">10–20 mins</p>
+                    </div>
+                    <input type="checkbox" data-task="task_25" class="tick">
+                </div>
+                <span class="tag">Relaxation</span>
+                <details>
+                    <summary>Cues + why</summary>
+                    <p><strong>Cues:</strong> Use on recovery days.</p>
+                    <p><strong>Why:</strong> Calms nervous system and improves stiffness.</p>
+                </details>
+            </div>
+        </article>
+        
+        <article class="exercise">
+            <div class="icon">
+    <svg viewBox="0 0 120 120" aria-hidden="true">
+      <rect x="8" y="8" width="104" height="104" rx="24" fill="#0f1720" stroke="#2b3544" stroke-width="2"/>
+      <circle cx="60" cy="32" r="10" fill="#f7f4ef"/>
+      <path d="M60 44 L60 76" stroke="#f7f4ef" stroke-width="8" stroke-linecap="round"/>
+      <path d="M60 54 L34 68" stroke="#69d2ff" stroke-width="8" stroke-linecap="round"/>
+      <path d="M60 54 L86 68" stroke="#69d2ff" stroke-width="8" stroke-linecap="round"/>
+      <path d="M48 78 L36 100" stroke="#aab3c2" stroke-width="7" stroke-linecap="round"/>
+      <path d="M72 78 L84 100" stroke="#aab3c2" stroke-width="7" stroke-linecap="round"/>
+      <text x="60" y="108" text-anchor="middle" fill="#69d2ff" font-size="16" font-family="Arial" font-weight="700">IC</text>
+    </svg>
+    </div>
+            <div class="content">
+                <div class="topline">
+                    <div>
+                        <h3>Ice Bath</h3>
+                        <p class="dose">Optional 1× weekly</p>
+                    </div>
+                    <input type="checkbox" data-task="task_26" class="tick">
+                </div>
+                <span class="tag">Optional</span>
+                <details>
+                    <summary>Cues + why</summary>
+                    <p><strong>Cues:</strong> Avoid immediately after strength training.</p>
+                    <p><strong>Why:</strong> Fine occasionally, but heat is probably more useful right now.</p>
+                </details>
+            </div>
+        </article>
+        </section>
+
+<section class="panel" id="checkin">
+  <h2>Daily Check-in</h2>
+  <div class="grid2">
+    <div><label>Pain 0–10</label><input id="pain" type="number" min="0" max="10"></div>
+    <div><label>Stiffness 0–10</label><input id="stiff" type="number" min="0" max="10"></div>
+  </div>
+  <label>Training today</label>
+  <select id="training">
+    <option></option><option>BJJ</option><option>Yoga</option><option>Gym</option><option>Swim</option><option>Rest</option><option>Recovery</option>
+  </select>
+  <label>Notes</label>
+  <textarea id="notes" rows="5" placeholder="What helped? What aggravated? How did BJJ feel?"></textarea>
+  <button id="saveBtn" style="width:100%;margin-top:12px;background:var(--blue);color:#06101a;">Save Check-in</button>
+</section>
+
+<section class="panel" id="history-panel">
+  <h2>History</h2>
+  <div id="history"></div>
+  <button id="exportBtn" style="width:100%;margin-top:12px;">Export Data</button>
+</section>
+
+<section class="panel" id="week">
+  <h2>Weekly Plan</h2>
+  <div class="day"><b>Monday</b><br>BJJ + cool-down. Keep elbows in.</div>
+  <div class="day"><b>Tuesday</b><br>Yoga + daily shoulder circuit.</div>
+  <div class="day"><b>Wednesday</b><br>BJJ, technical rounds, tap early to shoulder locks.</div>
+  <div class="day"><b>Thursday</b><br>Gym session + sauna.</div>
+  <div class="day"><b>Friday</b><br>Yoga or swim. Easy recovery.</div>
+  <div class="day"><b>Saturday</b><br>Rest. Walk, sunlight, optional hot bath.</div>
+  <div class="day"><b>Sunday</b><br>Yin yoga. Long holds, no forcing shoulder.</div>
+  <p><span class="green">Prefer in BJJ:</span> closed guard, half guard top, pressure passing, mount, back control.</p>
+  <p><span class="red">Avoid:</span> hard posting, stiff-arm frames, explosive scrambles, kimura/americana battles.</p>
+</section>
+
+<div class="bottomnav">
+  <a href="#daily-rehab">Daily</a>
+  <a href="#after-bjj-cooldown">BJJ</a>
+  <a href="#thursday-gym">Gym</a>
+  <a href="#checkin">Check</a>
+</div>
+
+<script>
+(function(){
+  const STORAGE = "charlie_shoulder_rehab_single_html_v1";
+  const today = new Date().toISOString().slice(0,10);
+  const total = 27;
+
+  function getData() {
+    try { return JSON.parse(localStorage.getItem(STORAGE)) || {}; }
+    catch(e) { return {}; }
+  }
+  function saveData(data) {
+    localStorage.setItem(STORAGE, JSON.stringify(data));
+  }
+  function taskKey(id) {
+    return today + ":" + id;
+  }
+  function updateStats() {
+    const data = getData();
+    let done = 0;
+    document.querySelectorAll(".tick").forEach(cb => {
+      if (cb.checked) done++;
+    });
+    document.getElementById("doneCount").textContent = done;
+    document.getElementById("progressBar").style.width = ((done / total) * 100) + "%";
+    const check = (data.checkins && data.checkins[today]) ? data.checkins[today] : {};
+    document.getElementById("painDisplay").textContent = check.pain || "–";
+    document.getElementById("stiffDisplay").textContent = check.stiff || "–";
+  }
+  function loadTicks() {
+    const data = getData();
+    document.querySelectorAll(".tick").forEach(cb => {
+      const key = taskKey(cb.dataset.task);
+      cb.checked = !!data[key];
+      cb.addEventListener("change", function() {
+        const d = getData();
+        d[key] = cb.checked;
+        saveData(d);
+        updateStats();
+      });
+    });
+  }
+  function loadCheckin() {
+    const data = getData();
+    const check = (data.checkins && data.checkins[today]) ? data.checkins[today] : {};
+    document.getElementById("pain").value = check.pain || "";
+    document.getElementById("stiff").value = check.stiff || "";
+    document.getElementById("training").value = check.training || "";
+    document.getElementById("notes").value = check.notes || "";
+  }
+  function saveCheckin() {
+    const data = getData();
+    data.checkins = data.checkins || {};
+    data.checkins[today] = {
+      pain: document.getElementById("pain").value,
+      stiff: document.getElementById("stiff").value,
+      training: document.getElementById("training").value,
+      notes: document.getElementById("notes").value,
+      updated: new Date().toISOString()
+    };
+    saveData(data);
+    renderHistory();
+    updateStats();
+  }
+  function renderHistory() {
+    const data = getData();
+    const checkins = data.checkins || {};
+    const days = Object.keys(checkins).sort().reverse().slice(0,14);
+    const box = document.getElementById("history");
+    if (!days.length) {
+      box.innerHTML = "<p>No check-ins yet.</p>";
+      return;
+    }
+    box.innerHTML = days.map(day => {
+      const c = checkins[day];
+      return '<div class="day"><b>' + day + '</b><br>Pain ' + (c.pain || '–') + ' / Stiff ' + (c.stiff || '–') + '<br>' + (c.training || '') + '<br><span class="small">' + (c.notes || '').replace(/</g,'&lt;') + '</span></div>';
+    }).join("");
+  }
+
+  document.getElementById("todayDate").textContent = new Date().toLocaleDateString(undefined, { weekday:"long", day:"numeric", month:"short" });
+  document.getElementById("saveBtn").addEventListener("click", saveCheckin);
+  ["pain","stiff","training","notes"].forEach(id => {
+    document.getElementById(id).addEventListener("change", saveCheckin);
+  });
+  document.getElementById("resetBtn").addEventListener("click", function(){
+    if (!confirm("Reset today’s ticked exercises? Check-ins stay saved.")) return;
+    const data = getData();
+    Object.keys(data).forEach(k => {
+      if (k.startsWith(today + ":")) delete data[k];
+    });
+    saveData(data);
+    document.querySelectorAll(".tick").forEach(cb => cb.checked = false);
+    updateStats();
+  });
+  document.getElementById("exportBtn").addEventListener("click", function(){
+    const blob = new Blob([JSON.stringify(getData(), null, 2)], {type:"application/json"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "charlie-shoulder-rehab-data.json";
+    a.click();
+  });
+
+  loadTicks();
+  loadCheckin();
+  renderHistory();
+  updateStats();
+})();
+</script>
+</body>
+</html>
